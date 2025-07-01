@@ -14,7 +14,15 @@
   "scripts": {
     "prepare": "husky",
     "precommit": "lint-staged",
-    "lint": "npm run lint --workspaces"
+    "lint": "npm run lint --workspaces",
+    "dapp:start": "npm start --workspace=dapp",
+    "dapp:dev": "npm run dev --workspace=dapp",
+    "dapp:test": "npm test --workspace=dapp",
+    "dapp:lint": "npm run lint --workspace=dapp",
+    "dapp:lint:fix": "npm run lint:fix --workspace=dapp",
+    "dapp:type-check": "npm run type-check --workspace=dapp",
+    "dapp:build": "npm run format --workspace=dapp",
+    "dapp:format": "npm run format --workspace=dapp"
   },
   "author": "Ianos Dorultan",
   "license": "MIT",
