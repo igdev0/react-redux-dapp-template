@@ -1,3 +1,5 @@
 .idea
 
 packages/.env
+
+node_modules

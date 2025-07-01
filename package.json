@@ -12,7 +12,9 @@
     ]
   },
   "scripts": {
-    "test": "npm test"
+    "prepare": "husky",
+    "precommit": "lint-staged",
+    "lint": "npm run lint --workspaces"
   },
   "author": "Ianos Dorultan",
   "license": "MIT",
