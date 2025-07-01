@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A React-Redux-Hardhat template",
   "main": "index.ts",
+  "workspaces": [],
   "scripts": {
     "test": "npm test"
   },
