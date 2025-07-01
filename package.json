@@ -1,0 +1,11 @@
+{
+  "name": "react-redux-dapp-template",
+  "version": "1.0.0",
+  "description": "A React-Redux-Hardhat template",
+  "main": "index.ts",
+  "scripts": {
+    "test": "npm test"
+  },
+  "author": "Ianos Dorultan",
+  "license": "MIT"
+}
