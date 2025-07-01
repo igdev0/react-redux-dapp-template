@@ -2,11 +2,10 @@ import {StrictMode} from "react";
 import {createRoot} from "react-dom/client";
 import {Provider} from "react-redux";
 import {App} from './index.tsx';
-import store from "./core/stores";
+import store from "./core/store";
 import "./index.css";
 
 const container = document.getElementById("root");
-
 if (container) {
   const root = createRoot(container);
 
