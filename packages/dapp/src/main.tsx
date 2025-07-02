@@ -1,13 +1,14 @@
 import {StrictMode} from "react";
 import {createRoot} from "react-dom/client";
 import {Provider} from "react-redux";
-import {App} from './index.tsx';
+import {App} from './app.tsx';
 import store from "@core/store";
 import "./index.css";
 import {WagmiProvider} from 'wagmi';
 import wagmi from '@core/config/wagmi.ts';
 import {QueryClientProvider} from '@tanstack/react-query';
 import queryProvider from "@core/config/tanstackQuery";
+import {RainbowKitProvider} from '@rainbow-me/rainbowkit';
 
 const container = document.getElementById("root");
 if (container) {
@@ -17,9 +18,11 @@ if (container) {
       <StrictMode>
         <WagmiProvider config={wagmi}>
           <QueryClientProvider client={queryProvider}>
-            <Provider store={store}>
-              <App/>
-            </Provider>
+            <RainbowKitProvider>
+              <Provider store={store}>
+                <App/>
+              </Provider>
+            </RainbowKitProvider>
           </QueryClientProvider>
         </WagmiProvider>
       </StrictMode>,
