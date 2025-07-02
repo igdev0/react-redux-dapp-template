@@ -5,7 +5,7 @@ import SignInScreen from '@features/user/screens/sign-in.tsx';
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <SignInScreen/>
+    element: <SignInScreen/>,
   }
 ]);
 
