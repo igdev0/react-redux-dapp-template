@@ -2,8 +2,12 @@ import {StrictMode} from "react";
 import {createRoot} from "react-dom/client";
 import {Provider} from "react-redux";
 import {App} from './index.tsx';
-import store from "./core/store";
+import store from "@core/store";
 import "./index.css";
+import {WagmiProvider} from 'wagmi';
+import wagmi from '@core/config/wagmi.ts';
+import {QueryClientProvider} from '@tanstack/react-query';
+import queryProvider from "@core/config/tanstackQuery";
 
 const container = document.getElementById("root");
 if (container) {
@@ -11,9 +15,13 @@ if (container) {
 
   root.render(
       <StrictMode>
-        <Provider store={store}>
-          <App/>
-        </Provider>
+        <WagmiProvider config={wagmi}>
+          <QueryClientProvider client={queryProvider}>
+            <Provider store={store}>
+              <App/>
+            </Provider>
+          </QueryClientProvider>
+        </WagmiProvider>
       </StrictMode>,
   );
 } else {
