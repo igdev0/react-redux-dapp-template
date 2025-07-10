@@ -1,16 +1,17 @@
 import * as dotenv from "dotenv";
-dotenv.config();
-import { HardhatUserConfig } from "hardhat/config";
+import {HardhatUserConfig, task} from "hardhat/config";
 import "@nomicfoundation/hardhat-ethers";
 import "@nomicfoundation/hardhat-chai-matchers";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
+
 import "solidity-coverage";
 import "@nomicfoundation/hardhat-verify";
 import "hardhat-deploy";
 import "hardhat-deploy-ethers";
-import { task } from "hardhat/config";
 import generateTsAbis from "./scripts/generateTsAbis";
+
+dotenv.config();
 
 // If not set, it uses ours Alchemy's default API key.
 // You can get your own at https://dashboard.alchemyapi.io

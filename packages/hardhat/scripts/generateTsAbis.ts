@@ -8,7 +8,7 @@
 
 import * as fs from "fs";
 import prettier from "prettier";
-import { DeployFunction } from "hardhat-deploy/types";
+import {DeployFunction} from "hardhat-deploy/types";
 
 const generatedContractComment = `
 /**
@@ -100,7 +100,7 @@ function getContractDataFromDeployments() {
  * This script should be run last.
  */
 const generateTsAbis: DeployFunction = async function () {
-  const TARGET_DIR = "../web-app/contracts/";
+  const TARGET_DIR = "../dapp/contracts/";
   const allContractsData = getContractDataFromDeployments();
 
   const fileContent = Object.entries(allContractsData).reduce((content, [chainId, chainConfig]) => {
