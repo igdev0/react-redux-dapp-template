@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "@rainbow-me/rainbowkit/styles.css";
 .sign-in {
     @apply flex items-center justify-center min-h-screen;
 }

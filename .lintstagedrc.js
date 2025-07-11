@@ -1,11 +1,9 @@
 const path = require("path");
 
 const buildNextEslintCommand = (filenames) =>
-  `yarn dapp:lint --fix --file ${filenames
-    .map((f) => path.relative(path.join("packages", "nextjs"), f))
-    .join(" --file ")}`;
+  `yarn dapp:lint --fix`;
 
-const checkTypesNextCommand = () => "yarn next:check-types";
+const checkTypesNextCommand = () => "yarn hardhat:check-types";
 
 const buildHardhatEslintCommand = (filenames) =>
   `yarn hardhat:lint-staged --fix ${filenames

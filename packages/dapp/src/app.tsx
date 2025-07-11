@@ -1,11 +1,11 @@
 import "./app.css";
 import {createBrowserRouter, RouterProvider} from 'react-router';
-import SignInScreen from '@features/user/screens/sign-in.tsx';
+import CounterScreen from '@features/counter/screens';
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <SignInScreen/>,
+    element: <CounterScreen/>,
   }
 ]);
 

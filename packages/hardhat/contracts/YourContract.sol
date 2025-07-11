@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.30;
 
-contract Contract {
-    uint public i;
+contract YourContract {
+    uint public count;
 
     function sayHello() public pure returns (string memory) {
         return "Hello world";
     }
 
     function increment() public returns (uint) {
-        i++;
-        return i;
+        count++;
+        return count;
     }
 
     function decrement() public returns (uint){
-        require(i > 0, "Cannot decrement because i must be bigger than 0");
-        i--;
-        return i;
+        require(count > 0, "Cannot decrement because i must be bigger than 0");
+        count--;
+        return count;
     }
 }

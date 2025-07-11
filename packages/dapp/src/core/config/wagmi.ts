@@ -1,10 +1,11 @@
 import {getDefaultConfig} from '@rainbow-me/rainbowkit';
-import {mainnet, sepolia} from 'wagmi/chains';
+import {hardhat, mainnet, sepolia} from 'wagmi/chains';
 import {http} from 'wagmi';
 
 const config = getDefaultConfig({
-  chains: [mainnet, sepolia],
+  chains: [hardhat, mainnet, sepolia],
   transports: {
+    [hardhat.id]: http(),
     [mainnet.id]: http(),
     [sepolia.id]: http(),
   },
