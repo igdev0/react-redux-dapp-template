@@ -23,6 +23,7 @@
     "dapp:type-check": "yarn workspace dapp type-check",
     "dapp:build": "yarn workspace dapp format",
     "dapp:format": "yarn workspace dapp format",
+    "dapp:generate": "yarn workspace dapp wagmi:generate",
     "hardhat:account": "yarn workspace hardhat account",
     "hardhat:account-import": "yarn workspace hardhat account:import",
     "hardhat:account-reveal": "yarn workspace hardhat account:reveal-pk",

@@ -3,13 +3,7 @@ import {hardhat, react} from '@wagmi/cli/plugins';
 
 export default defineConfig({
   out: 'src/shared/hooks/generated.ts',
-  contracts: [
-    {
-      abi: [],
-      name: "erc",
-      address: "0x"
-    },
-  ],
+  contracts: [],
   plugins: [
     hardhat({
       project: "../hardhat"
