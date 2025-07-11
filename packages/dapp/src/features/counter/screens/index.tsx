@@ -26,7 +26,7 @@ export default function CounterScreen() {
       <div className="w-full flex justify-center p-4">
         <ConnectWalletButton />
       </div>
-      <div className="flex flex-col w-full items-center h-[-webkit-fill-available] justify-center gap-5">
+      <div className="flex flex-col w-full items-center justify-center gap-5 mt-40">
         <h1 className="text-4xl font-bold text-white">
           Count{" "}
           <span className="text-gray-100">
