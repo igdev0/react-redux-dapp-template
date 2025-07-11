@@ -4,7 +4,7 @@ import {
   useWriteContractIncrement,
 } from "@shared/hooks/generated.ts"
 import ConnectWalletButton from "@core/components/connect-wallet-button"
-import Screen from "@shared/components/screen"
+import Screen from "@core/components/screen"
 import { useChainId } from "wagmi"
 
 export default function CounterScreen() {
