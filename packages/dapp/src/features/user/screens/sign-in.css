@@ -1,4 +1,0 @@
-@import "tailwindcss";
-.sign-in {
-    @apply flex items-center justify-center min-h-screen;
-}
