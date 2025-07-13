@@ -2,7 +2,7 @@ import "./app.css"
 import { createBrowserRouter, RouterProvider } from "react-router"
 import CounterScreen from "@features/counter/screens"
 import withConnectedNetworks from "@shared/hocs/with-supported-networks.tsx"
-import { memo, useRef } from "react"
+import { memo } from "react"
 
 const router = createBrowserRouter([
   {
@@ -12,8 +12,6 @@ const router = createBrowserRouter([
 ])
 
 function App() {
-  const renderCount = useRef(0)
-  renderCount.current += 1
   return <RouterProvider router={router} />
 }
 
