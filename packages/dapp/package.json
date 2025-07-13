@@ -17,6 +17,7 @@
     "type-check": "tsc -b --noEmit"
   },
   "dependencies": {
+    "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-slot": "^1.2.3",
     "@rainbow-me/rainbowkit": "^2.2.8",
     "@reduxjs/toolkit": "^2.6.1",

@@ -1,16 +1,20 @@
-import "./app.css";
-import {createBrowserRouter, RouterProvider} from 'react-router';
-import CounterScreen from '@features/counter/screens';
+import "./app.css"
+import { createBrowserRouter, RouterProvider } from "react-router"
+import CounterScreen from "@features/counter/screens"
+import withConnectedNetworks from "@shared/hocs/with-supported-networks.tsx"
+import { memo, useRef } from "react"
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <CounterScreen/>,
-  }
-]);
+    element: <CounterScreen />,
+  },
+])
 
-export function App() {
-  return (
-      <RouterProvider router={router}/>
-  );
+function App() {
+  const renderCount = useRef(0)
+  renderCount.current += 1
+  return <RouterProvider router={router} />
 }
+
+export default withConnectedNetworks(memo(App))
