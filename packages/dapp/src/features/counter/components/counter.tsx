@@ -25,8 +25,8 @@ function Counter() {
   return (
     <div className="flex flex-col w-full items-center justify-center gap-5 mt-40">
       <h1 className="text-4xl font-bold text-primary">
-        Count{" "}
-        <span className="text-gray-100">
+        Count{": "}
+        <span className="text-secondary-foreground">
           {count.data}
           {count.isLoading && "Fetching ..."}
         </span>
