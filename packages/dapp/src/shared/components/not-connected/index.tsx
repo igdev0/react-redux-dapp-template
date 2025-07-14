@@ -10,10 +10,10 @@ const defaultProps = {
 export default function NotConnected(props?: Props) {
   return (
     <div className="text-center">
-      <h1 className="text-white text-3xl">
+      <h1 className="text-primary text-3xl font-bold">
         {props?.title ?? defaultProps.title}
       </h1>
-      <p className="text-white">
+      <p className="text-primary">
         {props?.description ?? defaultProps.description}
       </p>
     </div>
