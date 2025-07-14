@@ -52,29 +52,13 @@ export default function ConnectWalletButton() {
                     style={{ display: "flex", alignItems: "center" }}
                     type="button"
                   >
-                    {chain.hasIcon && (
-                      <div
-                        className="w-[12] aspect-square rounded-full overflow-hidden mr-[4]"
-                        style={{
-                          background: chain.iconBackground,
-                        }}
-                      >
-                        {chain.iconUrl && (
-                          <img
-                            className="w-[12] aspect-square"
-                            alt={chain.name ?? "Chain icon"}
-                            src={chain.iconUrl}
-                          />
-                        )}
-                      </div>
-                    )}
-                    {chain.name}
                     <NetworkIcon />
+                    {chain.name}
                   </Button>
 
                   <Button onClick={openAccountModal} type="button">
-                    {account.displayName}
                     <Wallet2 />
+                    {account.displayName}
                   </Button>
                 </div>
               )
