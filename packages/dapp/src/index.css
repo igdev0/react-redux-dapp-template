@@ -79,7 +79,7 @@
 .dark {
     --background: var(--color-zinc-900);
     --foreground: var(--color-zinc-50);
-    --card: var(--color-zinc-900);
+    --card: var(--color-zinc-800);
     --card-foreground: var(--color-zinc-50);
     --popover: var(--color-zinc-800);
     --popover-foreground: var(--color-zinc-50);
