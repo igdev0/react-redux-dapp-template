@@ -92,7 +92,7 @@
     --accent: var(--color-zinc-700);
     --accent-foreground: var(--color-zinc-50);
     --border: var(--color-zinc-700);
-    --input: --alpha(var(--color-zinc-900) / 15%);
+    --input: var(--color-zinc-800);
     --ring: var(--color-zinc-500);
     --destructive: var(--color-red-500);
     --sidebar-foreground: var(--color-zinc-50);
