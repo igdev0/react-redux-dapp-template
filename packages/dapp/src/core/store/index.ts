@@ -1,11 +1,10 @@
-import { configureStore } from "@reduxjs/toolkit"
+import { combineReducers, configureStore } from "@reduxjs/toolkit"
 import { persistStore } from "redux-persist"
 import appReducer from "../../app-slice.ts"
+import theme from "@core/store/theme"
 
 const store = configureStore({
-  reducer: {
-    app: appReducer,
-  },
+  reducer: combineReducers([appReducer, theme]),
 })
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
