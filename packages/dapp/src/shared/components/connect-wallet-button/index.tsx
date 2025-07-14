@@ -72,11 +72,7 @@ export default function ConnectWalletButton() {
                     <NetworkIcon />
                   </Button>
 
-                  <Button
-                    variant="default"
-                    onClick={openAccountModal}
-                    type="button"
-                  >
+                  <Button onClick={openAccountModal} type="button">
                     {account.displayName}
                     <Wallet2 />
                   </Button>
