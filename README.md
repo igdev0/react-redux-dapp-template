@@ -38,6 +38,29 @@ A monorepo template for building decentralized applications (dapps) with a React
    yarn prepare
    ```
 
+## Getting Started
+
+1. Start the local Hardhat node:
+   ```bash
+   yarn hardhat:chain
+   ```
+
+2. Compile and deploy smart contracts:
+   ```bash
+   yarn hardhat:compile
+   yarn hardhat:deploy
+   ```
+
+3. Generate Wagmi hooks for the dapp:
+   ```bash
+   yarn dapp:generate
+   ```
+
+4. Start the React dapp in development mode:
+   ```bash
+   yarn dapp:dev
+   ```
+   
 ## Available Commands
 
 This project uses Yarn workspaces to manage two packages: `dapp` (React frontend) and `hardhat` (smart contracts). Run commands with `yarn <command>`.
@@ -198,28 +221,6 @@ yarn hardhat:verify
 - `packages/dapp`: React frontend with Redux, TailwindCSS, shadcn, Wagmi, and Viem.
 - `packages/hardhat`: Solidity smart contracts with Hardhat for development and deployment.
 
-## Getting Started
-
-1. Start the local Hardhat node:
-   ```bash
-   yarn hardhat:chain
-   ```
-
-2. Compile and deploy smart contracts:
-   ```bash
-   yarn hardhat:compile
-   yarn hardhat:deploy
-   ```
-
-3. Generate Wagmi hooks for the dapp:
-   ```bash
-   yarn dapp:generate
-   ```
-
-4. Start the React dapp in development mode:
-   ```bash
-   yarn dapp:dev
-   ```
 
 ## License
 
