@@ -10,10 +10,14 @@ const buildHardhatEslintCommand = (filenames) =>
     .map((f) => path.relative(path.join("packages", "hardhat"), f))
     .join(" ")}`;
 
+
+const fixBackendEslintCommand = () => `yarn lint`
+
 module.exports = {
   "packages/dapp/**/*.{ts,tsx}": [
     buildNextEslintCommand,
     checkTypesNextCommand,
   ],
   "packages/hardhat/**/*.{ts,tsx}": [buildHardhatEslintCommand],
+  "packages/backend": [fixBackendEslintCommand],
 };
