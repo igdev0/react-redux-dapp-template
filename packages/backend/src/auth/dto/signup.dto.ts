@@ -2,7 +2,7 @@ import { IsString } from 'class-validator';
 
 export class SignUpDto {
   @IsString()
-  address: string;
+  wallet_address: string;
   @IsString()
   nonce: string;
 }

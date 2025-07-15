@@ -1,24 +1,16 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpStatus,
-  Inject,
-  Post,
-  Res,
-} from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { generateNonce } from 'siwe';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { CacheStore } from '@nestjs/common/cache';
 import { Response } from 'express';
 import { SignUpDto } from './dto/signup.dto';
+import { UserService } from '../user/user.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    @Inject(CACHE_MANAGER)
+    private readonly userService: UserService,
     private readonly cache: CacheStore,
   ) {}
 
@@ -37,6 +29,8 @@ export class AuthController {
         .status(HttpStatus.UNPROCESSABLE_ENTITY)
         .send({ message: 'Invalid nonce' });
     }
+
+    await this.userService.findOneByWalletAddress(body.wallet_address);
   }
 
   @Post('signin')
