@@ -6,8 +6,7 @@ import { Request } from 'express';
 export interface AccessTokenPayload {
   sub: string;
   jti: string;
-  username: string;
-  email: string;
+  wallet_address: string;
   exp?: number;
 }
 

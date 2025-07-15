@@ -5,4 +5,8 @@ export class SignUpDto {
   wallet_address: string;
   @IsString()
   nonce: string;
+  @IsString()
+  message: string;
+  @IsString()
+  signature: string;
 }

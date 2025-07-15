@@ -4,10 +4,12 @@ import { AuthController } from './auth.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import authConfig from './auth.config';
 import { JwtModule } from '@nestjs/jwt';
+import { UserModule } from '../user/user.module';
 import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
+    UserModule,
     CacheModule.register(),
     ConfigModule.forFeature(authConfig),
     JwtModule.registerAsync({
