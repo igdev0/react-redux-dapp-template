@@ -12,6 +12,7 @@ import {
   Req,
   Res,
   UnprocessableEntityException,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { generateNonce, SiweMessage } from 'siwe';
@@ -22,6 +23,8 @@ import { User } from '../user/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 import { CacheManagerStore } from 'cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { AuthGuard } from './auth.guard';
+import { GetUser } from '../user/user.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -129,5 +132,11 @@ export class AuthController {
       sameSite: 'strict',
     });
     return { success: true };
+  }
+
+  @Get('me')
+  @UseGuards(AuthGuard)
+  getMe(@GetUser() user: User) {
+    return user;
   }
 }
