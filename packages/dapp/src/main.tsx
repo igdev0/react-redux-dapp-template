@@ -1,15 +1,13 @@
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
-import { Provider } from "react-redux"
 import App from "./app.tsx"
-import store from "@core/store"
-import { WagmiProvider } from "wagmi"
-import wagmi from "@core/config/wagmi.ts"
-import { QueryClientProvider } from "@tanstack/react-query"
-import queryProvider from "@core/config/tanstackQuery"
-import { RainbowKitProvider } from "@rainbow-me/rainbowkit"
-import { ThemeProvider } from "@shared/components/theme-provider"
 import "./index.css"
+import wagmi from "@core/config/wagmi.ts"
+import queryProvider from "@core/config/tanstackQuery.ts"
+import { QueryClientProvider } from "@tanstack/react-query"
+import { WagmiProvider } from "wagmi"
+import store from "@core/store"
+import { Provider } from "react-redux"
 
 const container = document.getElementById("root")
 if (container) {
@@ -17,17 +15,13 @@ if (container) {
 
   root.render(
     <StrictMode>
-      <WagmiProvider config={wagmi}>
-        <QueryClientProvider client={queryProvider}>
-          <RainbowKitProvider>
-            <Provider store={store}>
-              <ThemeProvider>
-                <App />
-              </ThemeProvider>
-            </Provider>
-          </RainbowKitProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
+      <Provider store={store}>
+        <WagmiProvider config={wagmi}>
+          <QueryClientProvider client={queryProvider}>
+            <App />
+          </QueryClientProvider>
+        </WagmiProvider>
+      </Provider>
     </StrictMode>,
   )
 } else {
