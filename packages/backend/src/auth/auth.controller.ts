@@ -17,7 +17,6 @@ import {
 import { AuthService } from './auth.service';
 import { generateNonce, SiweMessage } from 'siwe';
 import { Request, Response } from 'express';
-import { SignUpDto } from './dto/signup.dto';
 import { UserService } from '../user/user.service';
 import { User } from '../user/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
@@ -26,6 +25,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { AuthGuard } from './auth.guard';
 import { GetUser } from '../user/user.decorator';
 import { GetAccessToken, GetRefreshToken } from './auth.decorator';
+import SignInDto from './dto/signin.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -49,7 +49,7 @@ export class AuthController {
   }
 
   @Post('signin')
-  async signUp(@Body() body: SignUpDto, @Res() res: Response) {
+  async signUp(@Body() body: SignInDto, @Res() res: Response) {
     // 1. Verify the nonce
     // ===================
     const nonceStatus = (await this.cache.get(body.nonce)) as string;
