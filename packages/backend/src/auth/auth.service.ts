@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
@@ -242,9 +247,15 @@ export class AuthService {
         wallet_address: user.wallet_address as string,
         jti: crypto.randomUUID(),
       };
+    } else {
+      accessTokenPayload.jti = crypto.randomUUID();
     }
 
-    const newAccessToken = this.generateAccessToken(accessTokenPayload);
+    const newAccessToken = this.generateAccessToken({
+      sub: accessTokenPayload.sub,
+      wallet_address: accessTokenPayload.wallet_address,
+      jti: accessTokenPayload.jti,
+    });
 
     return { newRefreshToken: newRefreshToken, newAccessToken: newAccessToken };
   }
