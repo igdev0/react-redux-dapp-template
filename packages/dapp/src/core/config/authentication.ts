@@ -7,7 +7,6 @@ import { AccessTokenPayload } from "@core/services/auth.ts"
 const BACKEND_URL = "http://localhost:3000"
 const authenticationAdapter = createAuthenticationAdapter({
   getNonce: async () => {
-    console.log("authenticationAdapter getNonce")
     const response = await fetch(`${BACKEND_URL}/auth/nonce`, { mode: "cors" })
     return await response.text()
   },
