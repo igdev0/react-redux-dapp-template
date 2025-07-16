@@ -1,21 +1,23 @@
 import {
   CanActivate,
   ExecutionContext,
+  Inject,
+  Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { AccessTokenPayload, AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { UserService } from '../user/user.service';
-import { ConfigService } from '@nestjs/config';
 import { CacheStore } from '@nestjs/common/cache';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
+@Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
-    private readonly config: ConfigService,
-    private readonly cache: CacheStore,
+    @Inject(CACHE_MANAGER) private readonly cache: CacheStore,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -25,12 +27,8 @@ export class AuthGuard implements CanActivate {
     if (!token || token === 'undefined') {
       throw new UnauthorizedException('No token provided');
     }
-    const payload: AccessTokenPayload = await this.jwtService.verifyAsync(
-      token,
-      {
-        secret: this.config.get('JWT_SECRET'),
-      },
-    );
+    const payload: AccessTokenPayload =
+      await this.jwtService.verifyAsync(token);
 
     const blackListed = await this.cache.get(
       `blacklisted_access_token:${payload.jti}`,

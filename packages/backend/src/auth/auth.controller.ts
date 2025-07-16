@@ -45,21 +45,22 @@ export class AuthController {
   async getNonce(@Res() res: Response) {
     const nonce = generateNonce();
     await this.cache.set(nonce, 'valid');
-    res.status(HttpStatus.OK).send({ nonce });
+    res.status(HttpStatus.OK).send(nonce);
   }
 
   @Post('signin')
-  async signUp(@Body() body: SignInDto, @Res() res: Response) {
+  async signIn(@Body() body: SignInDto, @Res() res: Response) {
+    const siweMessage = new SiweMessage(body.message);
     // 1. Verify the nonce
     // ===================
-    const nonceStatus = (await this.cache.get(body.nonce)) as string;
+    const nonceStatus = (await this.cache.get(siweMessage.nonce)) as string;
     let user: User | null = null;
 
     if (!nonceStatus) {
       throw new UnprocessableEntityException(new Error('Invalid nonce'));
     }
     try {
-      user = await this.userService.findOneByWalletAddress(body.wallet_address);
+      user = await this.userService.findOneByWalletAddress(siweMessage.address);
     } catch (err) {
       this.logger.error(err);
       throw new InternalServerErrorException(err, {
@@ -70,9 +71,8 @@ export class AuthController {
     // 2. Verify user signature
     // ========================
     try {
-      const siweMessage = new SiweMessage(body.message);
       const siweResponse = await siweMessage.verify({
-        nonce: body.nonce,
+        nonce: siweMessage.nonce,
         signature: body.signature,
       });
 
@@ -91,7 +91,7 @@ export class AuthController {
     if (!user) {
       try {
         user = await this.userService.create({
-          wallet_address: body.wallet_address,
+          wallet_address: siweMessage.address,
         });
       } catch (err) {
         this.logger.error(err);
@@ -111,8 +111,7 @@ export class AuthController {
       sameSite: 'strict',
       maxAge: refreshTokenTTL * 1000,
     });
-
-    return { accessToken, ttl: accessTokenTTL };
+    res.status(HttpStatus.OK).json({ accessToken, ttl: accessTokenTTL, user });
   }
 
   @Post('signout')
@@ -132,7 +131,7 @@ export class AuthController {
       secure: this.secure,
       sameSite: 'strict',
     });
-    return { success: true };
+    res.status(HttpStatus.OK).json({ success: true });
   }
 
   @Get('me')
@@ -141,7 +140,7 @@ export class AuthController {
     return user;
   }
 
-  @Post('refresh')
+  @Get('refresh')
   async refresh(
     @GetRefreshToken() refreshToken: string | undefined,
     @GetAccessToken() accessToken: string | null,
@@ -162,9 +161,10 @@ export class AuthController {
         maxAge: (this.config.get('auth.refreshTokenTTL') as number) * 1000,
       });
     }
-    return {
+
+    res.status(HttpStatus.OK).json({
       accessToken: newAccessToken,
       ttl: this.config.get('auth.accessTokenTTL') as number,
-    };
+    });
   }
 }
