@@ -1,10 +1,12 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import { User } from '../user/entities/user.entity';
 import { CacheManagerStore } from 'cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 /**
  * Payload used for generating an access token.
@@ -42,6 +44,7 @@ export class AuthService {
     @Inject(JwtService) private readonly jwtService: JwtService,
     private readonly config: ConfigService,
     @Inject(CACHE_MANAGER) private readonly cache: CacheManagerStore,
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
 
   /**
@@ -86,7 +89,6 @@ export class AuthService {
   generateRefreshToken(payload: RefreshTokenPayload) {
     return this.jwtService.sign(payload, {
       expiresIn: this.config.get('auth.refreshTokenTTL'),
-      secret: this.config.get('auth.secret'),
     });
   }
 
@@ -144,12 +146,8 @@ export class AuthService {
   async signOut(accessToken: string | null, refreshToken: string | null) {
     if (refreshToken) {
       // If the verification will fail, let the controller handle the error
-      const payload: RefreshTokenPayload = await this.jwtService.verifyAsync(
-        refreshToken,
-        {
-          secret: this.config.get('JWT_SECRET'),
-        },
-      );
+      const payload: RefreshTokenPayload =
+        await this.jwtService.verifyAsync(refreshToken);
       // Delete the refresh token, so the existing ones can't be used no more.
       // This service
       await this.cache.del(`refresh_token:${payload.jti}`);
@@ -167,5 +165,87 @@ export class AuthService {
         remainingExpiry,
       );
     }
+  }
+
+  /**
+   * Refreshes the accessToken and returns a new refresh token if the refresh token expiry - threshold >= now
+   *
+   * @param accessToken – The user bearer token
+   * @param refreshToken – The refresh token used to generate a new access token
+   * */
+  async refresh(refreshToken: string, accessToken: string | null) {
+    // 1. Verify the integrity of the refresh token
+    let refreshTokenPayload: RefreshTokenPayload;
+    try {
+      refreshTokenPayload = await this.jwtService.verifyAsync(refreshToken);
+    } catch (err) {
+      throw new UnauthorizedException(err, {
+        description: 'The refresh token provided, is invalid',
+      });
+    }
+
+    // 2. Invalidate the existing access token
+    let accessTokenPayload: AccessTokenPayload | null = null;
+    if (accessToken) {
+      try {
+        accessTokenPayload =
+          await this.jwtService.verifyAsync<AccessTokenPayload>(accessToken);
+        const remainingExpiry =
+          (accessTokenPayload.exp || 0) * 1000 - Math.floor(Date.now());
+        await this.cache.set(
+          `blacklisted_access_token:${accessTokenPayload.jti}`,
+          accessToken,
+          remainingExpiry,
+        );
+      } catch (err) {
+        throw new UnauthorizedException(err, {
+          description: 'The access token provided, is invalid',
+        });
+      }
+    }
+
+    // 3. Generate a new refresh token if needed
+    const refreshTokenThreshold = this.config.get(
+      'auth.refreshTokenThreshold',
+    ) as number;
+    const remainingRefreshTokenExpiry =
+      (refreshTokenPayload.exp ?? 0) - Math.floor(Date.now() / 1000);
+    let newRefreshToken: string | null = null;
+    if (remainingRefreshTokenExpiry > refreshTokenThreshold) {
+      await this.cache.del(`refresh_token:${refreshTokenPayload.jti}`);
+      const payload: RefreshTokenPayload = {
+        sub: refreshTokenPayload.sub,
+        iat: Math.floor(Date.now()),
+        jti: crypto.randomUUID(),
+      };
+      newRefreshToken = this.generateRefreshToken(payload);
+      await this.cache.set(
+        `refresh_token:${refreshTokenPayload.jti}`,
+        newRefreshToken,
+      );
+    }
+
+    // 4. Generate the new access token
+
+    if (!accessTokenPayload) {
+      const user = await this.userRepository.findOne({
+        where: { id: refreshTokenPayload.sub },
+      });
+      if (!user) {
+        throw new NotFoundException(
+          `User ${refreshTokenPayload.sub} not found`,
+        );
+      }
+
+      accessTokenPayload = {
+        sub: user.id as string,
+        wallet_address: user.wallet_address as string,
+        jti: crypto.randomUUID(),
+      };
+    }
+
+    const newAccessToken = this.generateAccessToken(accessTokenPayload);
+
+    return { newRefreshToken: newRefreshToken, newAccessToken: newAccessToken };
   }
 }

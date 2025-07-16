@@ -25,6 +25,7 @@ import { CacheManagerStore } from 'cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { AuthGuard } from './auth.guard';
 import { GetUser } from '../user/user.decorator';
+import { GetAccessToken, GetRefreshToken } from './auth.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -138,5 +139,32 @@ export class AuthController {
   @UseGuards(AuthGuard)
   getMe(@GetUser() user: User) {
     return user;
+  }
+
+  @Post('refresh')
+  async refresh(
+    @GetRefreshToken() refreshToken: string | undefined,
+    @GetAccessToken() accessToken: string | null,
+    @Res() res: Response,
+  ) {
+    if (!refreshToken) {
+      throw new UnprocessableEntityException(new Error('Invalid refreshToken'));
+    }
+    const { newAccessToken, newRefreshToken } = await this.authService.refresh(
+      refreshToken,
+      accessToken,
+    );
+    if (newRefreshToken) {
+      res.cookie('refresh_token', newRefreshToken, {
+        httpOnly: true,
+        secure: this.secure,
+        sameSite: 'strict',
+        maxAge: (this.config.get('auth.refreshTokenTTL') as number) * 1000,
+      });
+    }
+    return {
+      accessToken: newAccessToken,
+      ttl: this.config.get('auth.accessTokenTTL') as number,
+    };
   }
 }
