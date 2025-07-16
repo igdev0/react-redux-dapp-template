@@ -24,6 +24,11 @@ const slice = createSlice({
       state.user = action.payload.user
       state.accessTokenTTL = action.payload.accessTokenTTL
     },
+
+    clearTTL(state) {
+      state.accessTokenTTL = null
+    },
+
     clearCredentials(state) {
       state.accessToken = null
       state.user = null
@@ -36,6 +41,6 @@ const slice = createSlice({
   } as AuthState,
 })
 
-export const { setCredentials, clearCredentials } = slice.actions
+export const { setCredentials, clearCredentials, clearTTL } = slice.actions
 
 export default slice.reducer

@@ -53,7 +53,7 @@ const auth = createApi({
       refreshToken: build.query<
         {
           accessToken: string
-          accessTokenTTL: number
+          ttl: number
         },
         unknown,
         unknown

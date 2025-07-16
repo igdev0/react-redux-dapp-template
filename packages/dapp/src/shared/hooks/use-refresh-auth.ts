@@ -1,15 +1,35 @@
-import { useAppDispatch } from "@core/store"
+import { RootState, useAppDispatch } from "@core/store"
 import {
   AccessTokenPayload,
   API_URL,
   useRefreshTokenQuery,
 } from "@core/services/auth.ts"
-import { useEffect } from "react"
-import { setCredentials } from "@core/store/auth-slice.ts"
+import { useEffect, useRef } from "react"
+import { clearTTL, setCredentials } from "@core/store/auth-slice.ts"
+import { useSelector } from "react-redux"
 
+const ACCESS_TOKEN_REFRESH_THRESHOLD = 60 // seconds
 export default function useRefreshAuth() {
   const appDispatch = useAppDispatch()
+  const accessTokenTTL = useSelector(
+    (state: RootState) => state.authSlice.accessTokenTTL,
+  )
   const refreshResult = useRefreshTokenQuery([])
+  const timer = useRef<ReturnType<typeof setTimeout>>(null)
+
+  useEffect(() => {
+    if (accessTokenTTL) {
+      timer.current = setTimeout(
+        () => {
+          appDispatch(clearTTL())
+          refreshResult.refetch()
+          clearTimeout(timer.current as keyof object)
+        },
+        (accessTokenTTL - ACCESS_TOKEN_REFRESH_THRESHOLD) * 1000,
+      )
+    }
+  }, [accessTokenTTL])
+
   useEffect(() => {
     ;(async () => {
       if (refreshResult.data) {
@@ -24,7 +44,7 @@ export default function useRefreshAuth() {
         appDispatch(
           setCredentials({
             accessToken: refreshResult.data.accessToken,
-            accessTokenTTL: refreshResult.data.accessTokenTTL,
+            accessTokenTTL: refreshResult.data.ttl,
             user,
           }),
         )
