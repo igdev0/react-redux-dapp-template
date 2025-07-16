@@ -4,7 +4,11 @@ import { appDispatch } from "@core/store"
 import { clearCredentials, setCredentials } from "@core/store/auth-slice.ts"
 import { AccessTokenPayload } from "@core/services/auth.ts"
 
-const BACKEND_URL = "http://localhost:3000"
+const BACKEND_URL = import.meta.env.VITE_BACKEND_API_URL
+
+if (!BACKEND_URL) {
+  throw new Error("VITE_BACKEND_API_URL should be set")
+}
 const authenticationAdapter = createAuthenticationAdapter({
   getNonce: async () => {
     const response = await fetch(`${BACKEND_URL}/auth/nonce`, { mode: "cors" })
