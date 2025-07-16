@@ -11,6 +11,7 @@ import {
   Post,
   Req,
   Res,
+  UnauthorizedException,
   UnprocessableEntityException,
   UseGuards,
 } from '@nestjs/common';
@@ -147,7 +148,7 @@ export class AuthController {
     @Res() res: Response,
   ) {
     if (!refreshToken) {
-      throw new UnprocessableEntityException(new Error('Invalid refreshToken'));
+      throw new UnauthorizedException('Invalid refreshToken');
     }
     const { newAccessToken, newRefreshToken } = await this.authService.refresh(
       refreshToken,
