@@ -1,19 +1,21 @@
 import {
+  BadRequestException,
   Body,
   Controller,
+  ForbiddenException,
   Get,
-  HttpStatus, Inject,
+  HttpStatus,
+  Inject,
+  InternalServerErrorException,
   Logger,
   Post,
+  Req,
   Res,
+  UnprocessableEntityException,
 } from '@nestjs/common';
-import {
-  AccessTokenPayload,
-  AuthService,
-  RefreshTokenPayload,
-} from './auth.service';
+import { AuthService } from './auth.service';
 import { generateNonce, SiweMessage } from 'siwe';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { SignUpDto } from './dto/signup.dto';
 import { UserService } from '../user/user.service';
 import { User } from '../user/entities/user.entity';
@@ -24,13 +26,16 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 @Controller('auth')
 export class AuthController {
   logger = new Logger('AuthController');
+  secure = false;
 
   constructor(
     private readonly userService: UserService,
     @Inject(CACHE_MANAGER) private readonly cache: CacheManagerStore,
     private readonly authService: AuthService,
     private readonly config: ConfigService,
-  ) {}
+  ) {
+    this.secure = this.config.get('auth.secure') as boolean;
+  }
 
   @Get('nonce')
   async getNonce(@Res() res: Response) {
@@ -39,28 +44,27 @@ export class AuthController {
     res.status(HttpStatus.OK).send({ nonce });
   }
 
-  @Post('signup')
+  @Post('signin')
   async signUp(@Body() body: SignUpDto, @Res() res: Response) {
+    // 1. Verify the nonce
+    // ===================
     const nonceStatus = (await this.cache.get(body.nonce)) as string;
+    let user: User | null = null;
+
     if (!nonceStatus) {
-      return res
-        .status(HttpStatus.UNPROCESSABLE_ENTITY)
-        .json({ error: 'Invalid nonce' });
+      throw new UnprocessableEntityException(new Error('Invalid nonce'));
     }
     try {
-      const user = await this.userService.findOneByWalletAddress(
-        body.wallet_address,
-      );
-      if (user) {
-        return res
-          .status(HttpStatus.CONFLICT)
-          .json({ error: 'User already exists' });
-      }
+      user = await this.userService.findOneByWalletAddress(body.wallet_address);
     } catch (err) {
       this.logger.error(err);
+      throw new InternalServerErrorException(err, {
+        description: 'Failed querying the user by wallet address',
+      });
     }
 
-    // Verifying the user
+    // 2. Verify user signature
+    // ========================
     try {
       const siweMessage = new SiweMessage(body.message);
       const siweResponse = await siweMessage.verify({
@@ -69,73 +73,61 @@ export class AuthController {
       });
 
       if (siweResponse.error) {
-        return res
-          .status(HttpStatus.BAD_REQUEST)
-          .json({ error: 'Failed to verify user' });
+        return { error: siweResponse.error };
       }
     } catch (err) {
       this.logger.error(err);
-      return res
-        .status(HttpStatus.BAD_REQUEST)
-        .json({ error: 'Failed to verify user' });
-    }
-
-    // Creating the new user
-    let user: User;
-    try {
-      user = await this.userService.create({
-        wallet_address: body.wallet_address,
+      throw new BadRequestException(err, {
+        description: 'Failed to verify user',
       });
-    } catch (err) {
-      this.logger.error(err);
-      return res
-        .status(HttpStatus.BAD_REQUEST)
-        .json({ message: 'Failed to create the user' });
     }
 
-    // Sign the access token and generate the refresh token
-    // ==========================================
-    const accessTokenPayload: AccessTokenPayload = {
-      wallet_address: user.wallet_address as string,
-      sub: user.id as string,
-      jti: crypto.randomUUID(),
-    };
+    // 3. Creating the new user if it doesn't exist
+    // ============================================
+    if (!user) {
+      try {
+        user = await this.userService.create({
+          wallet_address: body.wallet_address,
+        });
+      } catch (err) {
+        this.logger.error(err);
+        throw new InternalServerErrorException(err, {
+          description: 'Server failed to create user',
+        });
+      }
+    }
 
-    const nowInSeconds = Math.floor(Date.now() / 1000);
-
-    const refreshTokenPayload: RefreshTokenPayload = {
-      sub: user.id as string,
-      jti: crypto.randomUUID(),
-      iat: nowInSeconds,
-    };
-
-    const accessToken =
-      this.authService.generateAccessToken(accessTokenPayload);
-    const refreshToken =
-      this.authService.generateRefreshToken(refreshTokenPayload);
-
-    await this.cache.set(
-      `refresh_token:${refreshTokenPayload.jti}`,
-      accessTokenPayload.sub,
-      refreshTokenPayload.iat,
-    );
-
-    const secure = this.config.get('auth.secure') as boolean;
-    const refreshTokenTTL = this.config.get('auth.refreshTokenTTL') as number;
-    const accessTokenTTL = this.config.get('auth.accessTokenTTL') as number;
-
+    // 4. Sign the access token and generate the refresh token
+    // =======================================================
+    const { accessTokenTTL, refreshTokenTTL, accessToken, refreshToken } =
+      await this.authService.signIn(user);
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
-      secure,
+      secure: this.secure,
       sameSite: 'strict',
       maxAge: refreshTokenTTL * 1000,
     });
 
-    res.status(HttpStatus.OK).json({ accessToken, ttl: accessTokenTTL });
+    return { accessToken, ttl: accessTokenTTL };
   }
 
-  @Post('signin')
-  signIn() {
-    return 'Sign in';
+  @Post('signout')
+  async signOut(@Req() req: Request, @Res() res: Response) {
+    const refreshToken = AuthService.extractRefreshTokenFromHeader(req);
+    const accessToken = AuthService.extractAccessTokenFromHeader(req);
+    try {
+      await this.authService.signOut(refreshToken, accessToken);
+    } catch (err) {
+      this.logger.error(err);
+      throw new ForbiddenException(err, {
+        description: 'Failed to sign out',
+      });
+    }
+    res.clearCookie('refresh_token', {
+      httpOnly: true,
+      secure: this.secure,
+      sameSite: 'strict',
+    });
+    return { success: true };
   }
 }
