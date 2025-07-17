@@ -13,6 +13,10 @@ import { UserModule } from '../user/user.module';
     UserModule,
   ],
   providers: [NotificationService],
+  exports: [
+    NotificationService,
+    TypeOrmModule.forFeature([NotificationEntity]),
+  ],
   controllers: [NotificationController],
 })
 export class NotificationModule {}

@@ -47,10 +47,14 @@ export class NotificationService {
    */
   async saveAndSend(
     userId: string,
-    data: Omit<NotificationI, 'id' | 'created_at' | 'updated_at'>,
+    data: Omit<NotificationI, 'id' | 'created_at' | 'updated_at' | 'is_read'>,
   ) {
     const stream = this.userStreams.get(userId);
-    const entity = this.notificationRepository.create(data);
+    const entity = this.notificationRepository.create({
+      ...data,
+      is_read: false,
+      user: { id: userId },
+    });
     const saved = await this.notificationRepository.save(entity);
 
     // Send the notification over SSE if the user is connected
@@ -74,11 +78,9 @@ export class NotificationService {
   }
 
   async getNotifications(userId: string) {
-    return this.notificationRepository.find({
-      where: {
-        user: { id: userId },
-      },
-      relations: { user: true },
-    });
+    return this.notificationRepository
+      .createQueryBuilder()
+      .where('NotificationEntity.userId = :userId', { userId })
+      .getMany();
   }
 }

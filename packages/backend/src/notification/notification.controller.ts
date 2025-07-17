@@ -38,13 +38,11 @@ export class NotificationController {
   @Get()
   @UseGuards(AuthGuard) // Protects the route with authentication
   async getNotifications(@GetUser() user: User) {
-    const data = await this.notificationService.getNotifications(user.id);
-    console.log(data);
-    return data;
+    return await this.notificationService.getNotifications(user.id);
   }
 
   // PATCH endpoint to mark a specific notification as read
-  @Patch('id')
+  @Patch(':id')
   @UseGuards(AuthGuard) // Ensures only authenticated users can access
   markAsRead(@Param('id') id: string, @GetUser() user: User) {
     return this.notificationService.markAsRead(id, user.id);

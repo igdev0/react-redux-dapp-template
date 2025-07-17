@@ -5,7 +5,7 @@ export interface NotificationI {
   message: string;
   type: 'system' | 'on_chain' | 'custom';
   is_read: boolean;
-  metadata: JSON;
+  metadata: object;
   created_at: Date;
   updated_at: Date;
 }
