@@ -2,19 +2,24 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import NotificationEntity from '../../notification/entities/notification.entity';
 
 @Entity('user')
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  id?: string;
+  id!: string;
 
   @Column({
     unique: true,
   })
   wallet_address?: string;
+
+  @OneToMany(() => NotificationEntity, (notification) => notification.user)
+  notifications: NotificationEntity[];
 
   @CreateDateColumn()
   created_at?: Date;

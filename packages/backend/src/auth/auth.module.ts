@@ -27,6 +27,7 @@ import { AuthGuard } from './auth.guard';
     }),
   ],
   providers: [AuthService, AuthGuard],
+  exports: [AuthGuard, JwtModule, CacheModule],
   controllers: [AuthController],
 })
 export class AuthModule {}

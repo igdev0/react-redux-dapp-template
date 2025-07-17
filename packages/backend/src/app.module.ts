@@ -7,7 +7,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DatabaseType } from 'typeorm';
 import { User } from './user/entities/user.entity';
+import { NotificationModule } from './notification/notification.module';
 import databaseConfig from './database.config';
+import NotificationEntity from './notification/entities/notification.entity';
 
 @Module({
   imports: [
@@ -35,10 +37,11 @@ import databaseConfig from './database.config';
           password,
           database,
           synchronize,
-          entities: [User],
+          entities: [User, NotificationEntity],
         };
       },
     }),
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
