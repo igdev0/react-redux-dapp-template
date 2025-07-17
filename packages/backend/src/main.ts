@@ -7,7 +7,7 @@ async function bootstrap() {
   app.use(cookieParser());
   app.enableCors({
     origin: 'http://localhost:5173', // Allow specific domain
-    methods: 'GET,POST,PUT,DELETE', // Allow HTTP methods
+    methods: 'GET,POST,PUT,PATCH,DELETE', // Allow HTTP methods
     credentials: true, // Allow cookies to be sent
     allowedHeaders: 'Content-Type, Authorization', // Permitted request headers
   });
