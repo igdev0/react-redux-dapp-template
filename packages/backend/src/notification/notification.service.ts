@@ -62,11 +62,15 @@ export class NotificationService {
   /**
    * Marks a notification as read in the database.
    * @param notificationId - The ID of the notification to update
+   * @param userId - The ID of the user owning this notification
    */
-  async markAsRead(notificationId: string) {
-    await this.notificationRepository.update(notificationId, {
-      is_read: true,
-    });
+  async markAsRead(notificationId: string, userId: string) {
+    await this.notificationRepository
+      .createQueryBuilder()
+      .where('userId = :userId', { userId })
+      .andWhere('id = :id', { id: notificationId })
+      .update({ is_read: true })
+      .execute();
   }
 
   async getNotifications(userId: string) {
