@@ -8,7 +8,7 @@ import { useEffect, useRef } from "react"
 import { clearTTL, setCredentials } from "@core/store/auth-slice.ts"
 import { useSelector } from "react-redux"
 
-const ACCESS_TOKEN_REFRESH_THRESHOLD = 60 // seconds
+const ACCESS_TOKEN_REFRESH_THRESHOLD = 60 * 2 // seconds
 export default function useRefreshAuth() {
   const appDispatch = useAppDispatch()
   const accessTokenTTL = useSelector(
