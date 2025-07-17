@@ -1,22 +1,25 @@
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import {
   EventSourceMessage,
   fetchEventSource,
 } from "@microsoft/fetch-event-source"
 import { useSelector } from "react-redux"
-import { RootState } from "@core/store"
+import { RootState, useAppDispatch } from "@core/store"
 import {
   updateQueryData,
   useGetNotificationsQuery,
 } from "@features/notification/services/notification-api.ts"
-import { NotificationI } from "@features/notification/types"
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_API_URL
 export default function useNotification() {
   const notifications = useGetNotificationsQuery()
+  const appDispatch = useAppDispatch()
   const accessToken = useSelector(
     (state: RootState) => state.authSlice.accessToken,
   )
+  const notificationsUnreadCount = useMemo(() => {
+    return notifications.data?.filter(item => !item.is_read).length ?? 0
+  }, [notifications])
   useEffect(() => {
     const ctrl = new AbortController()
     if (accessToken) {
@@ -25,10 +28,14 @@ export default function useNotification() {
           authorization: `Bearer ${accessToken}`,
         },
         onmessage: (ev: EventSourceMessage) => {
-          const data = JSON.parse(ev.data) as NotificationI
-          updateQueryData("getNotifications", undefined, draft => {
-            draft.unshift(data)
-          })
+          const data = ev.data.length > 0 ? JSON.parse(ev.data) : null
+          if (data) {
+            appDispatch(
+              updateQueryData("getNotifications", undefined, draft => {
+                draft.unshift(data)
+              }),
+            )
+          }
         },
         onerror(err) {
           if (err instanceof Error) {
@@ -39,14 +46,12 @@ export default function useNotification() {
           }
         },
         signal: ctrl.signal,
-      })
-        .then()
-        .catch(console.error)
+      }).catch(console.error)
     }
 
     return () => {
       ctrl.abort()
     }
   }, [accessToken])
-  return notifications
+  return { ...notifications, notificationsUnreadCount }
 }
