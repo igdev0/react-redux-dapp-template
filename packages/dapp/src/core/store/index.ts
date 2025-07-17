@@ -3,12 +3,14 @@ import appReducer from "../../app-slice.ts"
 import authSlice from "@core/store/auth-slice.ts"
 import authService from "@core/services/auth.ts"
 import { useDispatch } from "react-redux"
+import notificationApi from "@features/notification/services/notification-api.ts"
 
 const store = configureStore({
   reducer: combineReducers({
     appReducer,
     authSlice,
     [authService.reducerPath]: authService.reducer,
+    [notificationApi.reducerPath]: notificationApi.reducer,
   }),
 
   middleware: getDefaultMiddleware => {
@@ -16,7 +18,7 @@ const store = configureStore({
       serializableCheck: {
         ignoreActions: true,
       },
-    }).concat(authService.middleware)
+    }).concat([authService.middleware, notificationApi.middleware])
   },
 })
 

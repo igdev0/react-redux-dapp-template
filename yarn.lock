@@ -3218,6 +3218,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@microsoft/fetch-event-source@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "@microsoft/fetch-event-source@npm:2.0.1"
+  checksum: a50e1c0f33220206967266d0a4bbba0703e2793b079d9f6e6bfd48f71b2115964a803e14cf6e902c6fab321edc084f26022334f5eaacc2cec87f174715d41852
+  languageName: node
+  linkType: hard
+
 "@napi-rs/nice-android-arm-eabi@npm:1.0.4":
   version: 1.0.4
   resolution: "@napi-rs/nice-android-arm-eabi@npm:1.0.4"
@@ -9948,6 +9955,7 @@ __metadata:
   resolution: "dapp@workspace:packages/dapp"
   dependencies:
     "@eslint/js": ^9.23.0
+    "@microsoft/fetch-event-source": ^2.0.1
     "@radix-ui/react-alert-dialog": ^1.1.14
     "@radix-ui/react-dropdown-menu": ^2.1.15
     "@radix-ui/react-slot": ^1.2.3

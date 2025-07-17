@@ -6,8 +6,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@shared/ui/dropdown-menu.tsx"
+import useNotification from "@features/notification/hooks/use-notification.tsx"
+import { useEffect } from "react"
+import withAuthenticated from "@shared/hocs/with-authenticated.tsx"
 
-export default function NotificationList() {
+function NotificationList() {
+  const notifications = useNotification()
+  useEffect(() => {
+    console.log(notifications)
+  }, [notifications])
   return (
     <div>
       <DropdownMenu>
@@ -29,3 +36,5 @@ export default function NotificationList() {
     </div>
   )
 }
+
+export default withAuthenticated(NotificationList)

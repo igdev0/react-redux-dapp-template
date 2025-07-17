@@ -76,9 +76,7 @@ export class NotificationService {
   async getNotifications(userId: string) {
     return this.notificationRepository.find({
       where: {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        userId,
+        user: { id: userId },
       },
       relations: { user: true },
     });

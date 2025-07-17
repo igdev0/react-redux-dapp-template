@@ -19,7 +19,7 @@ export class NotificationController {
 
   // SSE (Server-Sent Events) endpoint for streaming real-time notifications to authenticated users
   @UseGuards(AuthGuard) // Ensures the user is authenticated
-  @Sse()
+  @Sse('sse')
   stream(@Req() req: any, @GetUser() user: User) {
     // Connects the user to the notification stream (returns an Observable)
     const stream$ = this.notificationService.connectUser(user.id);
@@ -37,8 +37,10 @@ export class NotificationController {
   // GET endpoint to retrieve all notifications for the authenticated user
   @Get()
   @UseGuards(AuthGuard) // Protects the route with authentication
-  getNotifications(@GetUser() user: User) {
-    return this.notificationService.getNotifications(user.id);
+  async getNotifications(@GetUser() user: User) {
+    const data = await this.notificationService.getNotifications(user.id);
+    console.log(data);
+    return data;
   }
 
   // PATCH endpoint to mark a specific notification as read
