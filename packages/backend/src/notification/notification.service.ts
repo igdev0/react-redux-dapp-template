@@ -81,6 +81,7 @@ export class NotificationService {
     return this.notificationRepository
       .createQueryBuilder()
       .where('NotificationEntity.userId = :userId', { userId })
+      .orderBy('NotificationEntity.created_at', 'DESC')
       .getMany();
   }
 }
