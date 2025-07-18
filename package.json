@@ -15,6 +15,7 @@
     "prepare": "husky",
     "precommit": "lint-staged",
     "lint": "yarn workspace hardhat lint",
+    "dev": "npm-run-all --parallel dapp:dev backend:dev hardhat:chain hardhat:deploy",
     "dapp:start": "yarn workspace dapp start",
     "dapp:dev": "yarn workspace dapp dev",
     "dapp:test": "yarn workspace dapp test",
