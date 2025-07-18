@@ -11,13 +11,13 @@ const buildHardhatEslintCommand = (filenames) =>
     .join(" ")}`;
 
 
-const fixBackendEslintCommand = () => `yarn lint`
-
+const fixBackendEslintCommand = () => `yarn backend:lint`
+const formatBackendPrettierCommand = () => "yarn backend:format";
 module.exports = {
   "packages/dapp/**/*.{ts,tsx}": [
     buildNextEslintCommand,
     checkTypesNextCommand,
   ],
   "packages/hardhat/**/*.{ts,tsx}": [buildHardhatEslintCommand],
-  "packages/backend": [fixBackendEslintCommand],
+  "packages/backend": [fixBackendEslintCommand, formatBackendPrettierCommand],
 };
