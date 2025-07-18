@@ -116,14 +116,14 @@ export class AuthService {
   }> {
     const accessTokenPayload: AccessTokenPayload = {
       wallet_address: user.wallet_address as string,
-      sub: user.id as string,
+      sub: user.id,
       jti: crypto.randomUUID(),
     };
 
     const nowInSeconds = Math.floor(Date.now() / 1000);
 
     const refreshTokenPayload: RefreshTokenPayload = {
-      sub: user.id as string,
+      sub: user.id,
       jti: crypto.randomUUID(),
       iat: nowInSeconds,
     };
@@ -243,7 +243,7 @@ export class AuthService {
       }
 
       accessTokenPayload = {
-        sub: user.id as string,
+        sub: user.id,
         wallet_address: user.wallet_address as string,
         jti: crypto.randomUUID(),
       };
