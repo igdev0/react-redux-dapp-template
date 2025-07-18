@@ -1,6 +1,6 @@
 # React-Redux-Hardhat Dapp Template
 
-A monorepo template for building decentralized applications (dapps) with a React frontend and Solidity smart contracts, powered by Yarn workspaces, Hardhat, and modern Web3 tools.
+A monorepo template for building decentralized applications (dapps) with React on the frontend, NestJS on the backend and Solidity smart contracts, powered by Yarn workspaces, Hardhat, and modern Web3 tools.
 
 ## Technologies
 
@@ -13,6 +13,7 @@ A monorepo template for building decentralized applications (dapps) with a React
 - **[Hardhat](http://hardhat.org/)**: A development environment for compiling, testing, and deploying smart contracts.
 - **[Wagmi](https://wagmi.sh/)**: React hooks for seamless Ethereum smart contract interactions.
 - **[Viem](https://viem.sh/)**: A lightweight Ethereum SDK for robust blockchain interactions.
+- **[NestJS](https://nestjs.com)**: A progressive Node.js framework for building efficient, reliable and scalable server-side applications.
 
 ## Prerequisites
 
