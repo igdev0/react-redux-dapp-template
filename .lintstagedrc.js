@@ -19,5 +19,5 @@ module.exports = {
     checkTypesNextCommand,
   ],
   "packages/hardhat/**/*.{ts,tsx}": [buildHardhatEslintCommand],
-  "packages/backend": [fixBackendEslintCommand, formatBackendPrettierCommand],
+  "packages/backend/**/*.{ts}": [fixBackendEslintCommand, formatBackendPrettierCommand],
 };
