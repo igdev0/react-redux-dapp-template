@@ -14,6 +14,7 @@ A monorepo template for building decentralized applications (dapps) with React o
 - **[Wagmi](https://wagmi.sh/)**: React hooks for seamless Ethereum smart contract interactions.
 - **[Viem](https://viem.sh/)**: A lightweight Ethereum SDK for robust blockchain interactions.
 - **[NestJS](https://nestjs.com)**: A progressive Node.js framework for building efficient, reliable and scalable server-side applications.
+- **[PostgreSQL](https://www.postgresql.org/)**: World's Most Advanced Open Source Relational Database
 
 ## Prerequisites
 
