@@ -1,4 +1,4 @@
-import { BellIcon } from "lucide-react"
+import { BellIcon, CheckIcon } from "lucide-react"
 import { Button } from "@shared/ui/button.tsx"
 import {
   DropdownMenu,
@@ -9,6 +9,7 @@ import {
 import useNotification from "@features/notification/hooks/use-notification.tsx"
 import withAuthenticated from "@shared/hocs/with-authenticated.tsx"
 import { useMarkAsReadMutation } from "@features/notification/services/notification-api.ts"
+import { clsx } from "clsx"
 
 function NotificationList() {
   const { notificationsUnreadCount, ...notifications } = useNotification()
@@ -35,11 +36,24 @@ function NotificationList() {
         <DropdownMenuContent align="center">
           {notifications.data?.map(notification => (
             <DropdownMenuItem
+              className={clsx(
+                !notification.is_read ? "dark:bg-gray-200/5 bg-gray-200" : "",
+                "cursor-pointer my-1",
+              )}
               key={notification.id}
-              onClick={handleNotificationClick(notification.id)}
+              onClick={
+                !notification.is_read
+                  ? handleNotificationClick(notification.id)
+                  : undefined
+              }
             >
+              {notification.type === "on_chain" ? (
+                <CheckIcon className="stroke-green-400" />
+              ) : null}
               <div>
-                <h3 className="text-lg block">{notification.title}</h3>
+                <h3 className="text-sm block font-bold">
+                  {notification.title}
+                </h3>
                 <p>{notification.message}</p>
               </div>
             </DropdownMenuItem>
