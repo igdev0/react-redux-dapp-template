@@ -16,10 +16,6 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
-  findAll() {
-    return this.userRepository.find();
-  }
-
   findOneById(id: string) {
     return this.userRepository.findOne({
       where: { id },
