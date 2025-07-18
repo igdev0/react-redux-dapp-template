@@ -18,6 +18,6 @@ module.exports = {
     buildNextEslintCommand,
     checkTypesNextCommand,
   ],
-  "packages/hardhat/**/*.{ts,tsx}": [buildHardhatEslintCommand],
-  "packages/backend/**/*.{ts}": [fixBackendEslintCommand, formatBackendPrettierCommand],
+  "packages/hardhat/**/*.ts": [buildHardhatEslintCommand],
+  "packages/backend/**/*.ts": [fixBackendEslintCommand, formatBackendPrettierCommand],
 };
