@@ -1,4 +1,8 @@
-import { AuthService } from './auth.service';
+import {
+  AccessTokenPayload,
+  AuthService,
+  RefreshTokenPayload,
+} from './auth.service';
 import { Mocked, TestBed } from '@suites/unit';
 import { CacheManagerStore } from 'cache-manager';
 import { User } from '../user/entities/user.entity';
@@ -24,7 +28,7 @@ describe('AuthService', () => {
   let configService: Mocked<ConfigService>;
 
   let cacheManager: Mocked<CacheManagerStore>;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   let userRepository: Mocked<Repository<User>>;
 
   beforeEach(async () => {
@@ -91,7 +95,6 @@ describe('AuthService', () => {
         },
         {
           expiresIn: MOCKED_CONFIG.accessTokenTTL,
-          secret: MOCKED_CONFIG.secret,
         },
       );
     });
@@ -109,7 +112,7 @@ describe('AuthService', () => {
 
       expect(refreshToken).toEqual('signed_refresh_token');
       expect(jwtService.sign).toHaveBeenCalledWith(payload, {
-        expiresIn: MOCKED_CONFIG.refreshTokenTTL,
+        expiresIn: configService.get('auth.refreshTokenTTL') as number,
       });
     });
   });
@@ -132,7 +135,6 @@ describe('AuthService', () => {
       };
       expect(jwtService.sign).toHaveBeenCalledWith(accessTokenPayload, {
         expiresIn: MOCKED_CONFIG.accessTokenTTL,
-        secret: MOCKED_CONFIG.secret,
       });
 
       const refreshTokenPayload = {
@@ -157,6 +159,107 @@ describe('AuthService', () => {
         refreshToken: service.generateRefreshToken(refreshTokenPayload),
         accessTokenTTL: configService.get<number>('auth.accessTokenTTL'),
         refreshTokenTTL: configService.get<number>('auth.refreshTokenTTL'),
+      });
+    });
+
+    describe('Refresh token', () => {
+      const refreshToken = 'mocked_refresh_token';
+      const accessToken = 'mocked_access_token';
+      let result: Awaited<ReturnType<typeof service.refresh>>;
+      let refreshThreshold: number;
+
+      let refreshTokenPayload: RefreshTokenPayload;
+
+      let accessTokenPayload: AccessTokenPayload;
+
+      beforeEach(() => {
+        refreshThreshold = configService.get<number>(
+          'auth.refreshTokenExpiryThreshold',
+        ) as number;
+        refreshTokenPayload = {
+          sub: crypto.randomUUID(),
+          jti: crypto.randomUUID(),
+          iat: Math.floor(Date.now() / 1000),
+          exp: Math.floor(Date.now() / 1000) + refreshThreshold,
+        };
+        accessTokenPayload = {
+          exp: Math.floor(Date.now() / 1000),
+          jti: crypto.randomUUID(),
+          sub: crypto.randomUUID(),
+          wallet_address: '0x0000',
+        };
+        jwtService.verifyAsync
+          .mockResolvedValueOnce(refreshTokenPayload)
+          .mockResolvedValueOnce(accessTokenPayload);
+
+        jwtService.sign
+          .mockReturnValueOnce(refreshToken)
+          .mockReturnValueOnce(accessToken);
+      });
+      it('should generate a new refresh token and access token if both access and refresh token passed as arguments', async () => {
+        result = await service.refresh(refreshToken, accessToken);
+
+        expect(jwtService.verifyAsync).toHaveBeenCalledWith(refreshToken);
+        expect(jwtService.verifyAsync).toHaveBeenCalledWith(accessToken);
+
+        const newRefreshTokenPayload = {
+          sub: refreshTokenPayload.sub,
+          iat: Math.floor(Date.now()),
+          jti: crypto.randomUUID(),
+        };
+
+        const remainingExpiry =
+          (accessTokenPayload.exp || 0) * 1000 - Math.floor(Date.now());
+
+        expect(cacheManager.set).toHaveBeenCalledWith(
+          `blacklisted_access_token:${accessTokenPayload.jti}`,
+          accessToken,
+          remainingExpiry,
+        );
+
+        expect(jwtService.sign).toHaveBeenCalledWith(newRefreshTokenPayload, {
+          expiresIn: configService.get('auth.refreshTokenTTL') as number,
+        });
+
+        expect(cacheManager.set).toHaveBeenCalledWith(
+          `refresh_token:${refreshTokenPayload.jti}`,
+          refreshToken,
+        );
+
+        // Generate a new refresh token now as the expiry meets the condition
+        expect(cacheManager.del).toHaveBeenCalledWith(
+          `refresh_token:${refreshTokenPayload.jti}`,
+        );
+
+        expect(result).toEqual({
+          newRefreshToken: refreshToken,
+          newAccessToken: accessToken,
+        });
+      });
+
+      it('should query the user database if the access token is not passed', async () => {
+        const user: User = {
+          notifications: [],
+          updated_at: new Date(),
+          created_at: new Date(),
+          wallet_address: '0x000',
+          id: crypto.randomUUID(),
+        };
+
+        userRepository.findOne.mockResolvedValue(user);
+        result = await service.refresh(refreshToken, null);
+        const remainingExpiry =
+          (accessTokenPayload.exp || 0) * 1000 - Math.floor(Date.now());
+
+        expect(cacheManager.set).not.toHaveBeenCalledWith(
+          `blacklisted_access_token:${accessTokenPayload.jti}`,
+          accessToken,
+          remainingExpiry,
+        );
+
+        expect(userRepository.findOne).toHaveBeenCalledWith({
+          where: { id: refreshTokenPayload.sub },
+        });
       });
     });
   });
