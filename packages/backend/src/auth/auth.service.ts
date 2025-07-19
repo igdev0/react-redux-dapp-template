@@ -164,8 +164,7 @@ export class AuthService {
       const accessTokenPayload: AccessTokenPayload =
         await this.jwtService.verifyAsync(accessToken);
       // Store the jti in cache with its remaining expiry time
-      const remainingExpiry =
-        (accessTokenPayload.exp || 0) * 1000 - Math.floor(Date.now());
+      const remainingExpiry = (accessTokenPayload.exp || 0) * 1000 - Date.now();
       await this.cache.set(
         `blacklisted_access_token:${accessTokenPayload.jti}`,
         accessToken,
