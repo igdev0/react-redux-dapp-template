@@ -121,10 +121,10 @@ describe('AuthService', () => {
     const accessToken = 'mocked_access_token';
     let accessTokenPayload: AccessTokenPayload;
     let refreshTokenPayload: RefreshTokenPayload;
-    let refreshThreshold: number;
+    let accessTokenTTL: number;
     beforeEach(() => {
-      refreshThreshold = configService.get<number>(
-        'auth.refreshTokenExpiryThreshold',
+      accessTokenTTL = configService.get<number>(
+        'auth.accessTokenTTL',
       ) as number;
       user = {
         id: crypto.randomUUID(),
@@ -137,12 +137,13 @@ describe('AuthService', () => {
         wallet_address: user.wallet_address as string,
         sub: user.id,
         jti: crypto.randomUUID(),
+        exp: Math.floor(Date.now() / 1000) + accessTokenTTL,
       };
       refreshTokenPayload = {
         sub: user.id,
         jti: crypto.randomUUID(),
         iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor(Date.now() / 1000) + refreshThreshold,
+        exp: Math.floor(Date.now() / 1000), // this one should expire
       };
     });
 
@@ -272,6 +273,18 @@ describe('AuthService', () => {
         .mockResolvedValueOnce(refreshTokenPayload)
         .mockResolvedValueOnce(accessTokenPayload);
       await service.signOut(accessToken, refreshToken);
+
+      expect(cacheManager.del).toHaveBeenCalledWith(
+        `refresh_token:${refreshTokenPayload.jti}`,
+      );
+
+      const remainingExpiry = (accessTokenPayload.exp || 0) * 1000 - Date.now();
+
+      expect(cacheManager.set).toHaveBeenCalledWith(
+        `blacklisted_access_token:${accessTokenPayload.jti}`,
+        accessToken,
+        remainingExpiry,
+      );
     });
   });
 });
