@@ -12,12 +12,11 @@ const buildHardhatEslintCommand = (filenames) =>
 
 
 const fixBackendEslintCommand = () => `yarn backend:lint`
-const formatBackendPrettierCommand = () => "yarn backend:format";
 module.exports = {
   "packages/dapp/**/*.{ts,tsx}": [
     buildNextEslintCommand,
     checkTypesNextCommand,
   ],
   "packages/hardhat/**/*.ts": [buildHardhatEslintCommand],
-  "packages/backend/**/*.ts": [fixBackendEslintCommand, formatBackendPrettierCommand],
+  "packages/backend/**/*.ts": [fixBackendEslintCommand],
 };
