@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
+import { ModuleMocker } from 'jest-mock';
 
 describe('UserController', () => {
   let controller: UserController;
@@ -9,7 +10,11 @@ describe('UserController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UserController],
       providers: [UserService],
-    }).compile();
+    })
+      .useMocker(() => {
+        return new ModuleMocker(global);
+      })
+      .compile();
 
     controller = module.get<UserController>(UserController);
   });
