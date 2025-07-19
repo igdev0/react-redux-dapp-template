@@ -1,6 +1,7 @@
 import {
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -45,6 +46,8 @@ export interface RefreshTokenPayload {
 
 @Injectable()
 export class AuthService {
+  logger = new Logger('AuthService');
+
   constructor(
     @Inject(JwtService) private readonly jwtService: JwtService,
     private readonly config: ConfigService,
@@ -203,9 +206,9 @@ export class AuthService {
           remainingExpiry,
         );
       } catch (err) {
-        throw new UnauthorizedException(err, {
-          description: 'The access token provided, is invalid',
-        });
+        // Instead of throwing an error, just log it to the console, and continue running.
+        // Because the user has a valid refresh token, it might happen frontend to fail refreshing the token on time.
+        this.logger.warn(err);
       }
     }
 
