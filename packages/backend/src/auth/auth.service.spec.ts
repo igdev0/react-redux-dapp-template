@@ -26,9 +26,7 @@ describe('AuthService', () => {
   let service: AuthService;
   let jwtService: Mocked<JwtService>;
   let configService: Mocked<ConfigService>;
-
   let cacheManager: Mocked<CacheManagerStore>;
-
   let userRepository: Mocked<Repository<User>>;
 
   beforeEach(async () => {
@@ -118,34 +116,60 @@ describe('AuthService', () => {
   });
 
   describe('Auth', () => {
-    it('should be able to sign in', async () => {
-      const user = {
-        id: 'some-user-uuid',
+    let user: User;
+    const refreshToken = 'mocked_refresh_token';
+    const accessToken = 'mocked_access_token';
+    let accessTokenPayload: AccessTokenPayload;
+    let refreshTokenPayload: RefreshTokenPayload;
+    let refreshThreshold: number;
+    beforeEach(() => {
+      refreshThreshold = configService.get<number>(
+        'auth.refreshTokenExpiryThreshold',
+      ) as number;
+      user = {
+        id: crypto.randomUUID(),
         wallet_address: '0x00000',
         created_at: new Date('20-05-1995'),
         updated_at: new Date('20-05-1995'),
         notifications: [],
       };
-      const result = await service.signIn(user);
-
-      const accessTokenPayload = {
-        wallet_address: user.wallet_address,
+      accessTokenPayload = {
+        wallet_address: user.wallet_address as string,
         sub: user.id,
         jti: crypto.randomUUID(),
       };
-      expect(jwtService.sign).toHaveBeenCalledWith(accessTokenPayload, {
-        expiresIn: MOCKED_CONFIG.accessTokenTTL,
-      });
-
-      const refreshTokenPayload = {
+      refreshTokenPayload = {
         sub: user.id,
         jti: crypto.randomUUID(),
         iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + refreshThreshold,
       };
+    });
 
-      expect(jwtService.sign).toHaveBeenCalledWith(refreshTokenPayload, {
-        expiresIn: MOCKED_CONFIG.refreshTokenTTL,
-      });
+    it('should be able to sign in', async () => {
+      const result = await service.signIn(user);
+
+      expect(jwtService.sign).toHaveBeenCalledWith(
+        {
+          wallet_address: user.wallet_address as string,
+          sub: user.id,
+          jti: crypto.randomUUID(),
+        },
+        {
+          expiresIn: configService.get('auth.accessTokenTTL') as number,
+        },
+      );
+
+      expect(jwtService.sign).toHaveBeenCalledWith(
+        {
+          sub: user.id,
+          jti: crypto.randomUUID(),
+          iat: Math.floor(Date.now() / 1000),
+        },
+        {
+          expiresIn: configService.get('auth.refreshTokenTTL') as number,
+        },
+      );
       expect(cacheManager.set).toHaveBeenCalledWith(
         `refresh_token:${refreshTokenPayload.jti}`,
         accessTokenPayload.sub,
@@ -161,33 +185,10 @@ describe('AuthService', () => {
         refreshTokenTTL: configService.get<number>('auth.refreshTokenTTL'),
       });
     });
-
     describe('Refresh token', () => {
-      const refreshToken = 'mocked_refresh_token';
-      const accessToken = 'mocked_access_token';
       let result: Awaited<ReturnType<typeof service.refresh>>;
-      let refreshThreshold: number;
-
-      let refreshTokenPayload: RefreshTokenPayload;
-
-      let accessTokenPayload: AccessTokenPayload;
 
       beforeEach(() => {
-        refreshThreshold = configService.get<number>(
-          'auth.refreshTokenExpiryThreshold',
-        ) as number;
-        refreshTokenPayload = {
-          sub: crypto.randomUUID(),
-          jti: crypto.randomUUID(),
-          iat: Math.floor(Date.now() / 1000),
-          exp: Math.floor(Date.now() / 1000) + refreshThreshold,
-        };
-        accessTokenPayload = {
-          exp: Math.floor(Date.now() / 1000),
-          jti: crypto.randomUUID(),
-          sub: crypto.randomUUID(),
-          wallet_address: '0x0000',
-        };
         jwtService.verifyAsync
           .mockResolvedValueOnce(refreshTokenPayload)
           .mockResolvedValueOnce(accessTokenPayload);
@@ -232,7 +233,7 @@ describe('AuthService', () => {
         result = await service.refresh(refreshToken, accessToken);
 
         const remainingExpiry =
-          (accessTokenPayload.exp || 0) * 1000 - Math.floor(Date.now());
+          (accessTokenPayload.exp || 0) * 1000 - Date.now();
 
         expect(cacheManager.set).toHaveBeenCalledWith(
           `blacklisted_access_token:${accessTokenPayload.jti}`,
@@ -265,6 +266,12 @@ describe('AuthService', () => {
           where: { id: refreshTokenPayload.sub },
         });
       });
+    });
+    it('should be able to sign out', async () => {
+      jwtService.verifyAsync
+        .mockResolvedValueOnce(refreshTokenPayload)
+        .mockResolvedValueOnce(accessTokenPayload);
+      await service.signOut(accessToken, refreshToken);
     });
   });
 });
