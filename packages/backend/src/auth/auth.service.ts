@@ -84,7 +84,6 @@ export class AuthService {
   generateAccessToken(payload: AccessTokenPayload) {
     return this.jwtService.sign(payload, {
       expiresIn: this.config.get('auth.accessTokenTTL'),
-      secret: this.config.get('auth.secret'),
     });
   }
 
@@ -214,7 +213,7 @@ export class AuthService {
 
     // 3. Generate a new refresh token if needed
     const refreshTokenThreshold = this.config.get(
-      'auth.refreshTokenThreshold',
+      'auth.refreshTokenExpiryThreshold',
     ) as number;
     const remainingRefreshTokenExpiry =
       (refreshTokenPayload.exp ?? 0) - Math.floor(Date.now() / 1000);
