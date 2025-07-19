@@ -216,7 +216,7 @@ export class AuthService {
     const remainingRefreshTokenExpiry =
       (refreshTokenPayload.exp ?? 0) - Math.floor(Date.now() / 1000);
     let newRefreshToken: string | null = null;
-    if (remainingRefreshTokenExpiry > refreshTokenThreshold) {
+    if (remainingRefreshTokenExpiry <= refreshTokenThreshold) {
       await this.cache.del(`refresh_token:${refreshTokenPayload.jti}`);
       const payload: RefreshTokenPayload = {
         sub: refreshTokenPayload.sub,
