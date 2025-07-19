@@ -208,15 +208,6 @@ describe('AuthService', () => {
           jti: crypto.randomUUID(),
         };
 
-        const remainingExpiry =
-          (accessTokenPayload.exp || 0) * 1000 - Math.floor(Date.now());
-
-        expect(cacheManager.set).toHaveBeenCalledWith(
-          `blacklisted_access_token:${accessTokenPayload.jti}`,
-          accessToken,
-          remainingExpiry,
-        );
-
         expect(jwtService.sign).toHaveBeenCalledWith(newRefreshTokenPayload, {
           expiresIn: configService.get('auth.refreshTokenTTL') as number,
         });
@@ -235,6 +226,19 @@ describe('AuthService', () => {
           newRefreshToken: refreshToken,
           newAccessToken: accessToken,
         });
+      });
+
+      it('should blacklist access token if passed & is valid', async () => {
+        result = await service.refresh(refreshToken, accessToken);
+
+        const remainingExpiry =
+          (accessTokenPayload.exp || 0) * 1000 - Math.floor(Date.now());
+
+        expect(cacheManager.set).toHaveBeenCalledWith(
+          `blacklisted_access_token:${accessTokenPayload.jti}`,
+          accessToken,
+          remainingExpiry,
+        );
       });
 
       it('should query the user database if the access token is not passed', async () => {
