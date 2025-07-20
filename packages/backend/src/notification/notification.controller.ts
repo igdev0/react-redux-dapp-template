@@ -40,11 +40,11 @@ export class NotificationController {
   @UseGuards(AuthGuard) // Protects the route with authentication
   async getNotifications(
     @GetUser() user: User,
-    @Query('offset') offset: number,
-    @Query('limit') limit: number,
+    @Query('offset') offset?: number,
+    @Query('limit') limit?: number,
   ) {
-    limit = Math.min(Math.max(limit, 1), 15);
-    offset = Math.max(offset, 1);
+    limit = Math.min(Math.max(limit ?? 10, 1), 15);
+    offset = Math.max(offset ?? 0, 0);
     return await this.notificationService.getNotifications(
       user.id,
       offset,
