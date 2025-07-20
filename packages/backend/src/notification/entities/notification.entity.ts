@@ -30,7 +30,7 @@ export default class NotificationEntity {
   is_read: boolean;
 
   @Column({ type: 'json', nullable: true })
-  metadata: JSON;
+  metadata: object;
 
   @CreateDateColumn()
   created_at: Date;
