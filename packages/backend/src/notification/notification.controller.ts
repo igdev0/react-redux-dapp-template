@@ -3,6 +3,7 @@ import {
   Get,
   Param,
   Patch,
+  Query,
   Req,
   Sse,
   UseGuards,
@@ -37,8 +38,18 @@ export class NotificationController {
   // GET endpoint to retrieve all notifications for the authenticated user
   @Get()
   @UseGuards(AuthGuard) // Protects the route with authentication
-  async getNotifications(@GetUser() user: User) {
-    return await this.notificationService.getNotifications(user.id);
+  async getNotifications(
+    @GetUser() user: User,
+    @Query('offset') offset: number,
+    @Query('limit') limit: number,
+  ) {
+    limit = Math.min(Math.max(limit, 1), 15);
+    offset = Math.max(offset, 1);
+    return await this.notificationService.getNotifications(
+      user.id,
+      offset,
+      limit,
+    );
   }
 
   // PATCH endpoint to mark a specific notification as read

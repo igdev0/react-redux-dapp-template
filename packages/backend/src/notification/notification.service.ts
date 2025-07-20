@@ -77,11 +77,17 @@ export class NotificationService {
       .execute();
   }
 
-  async getNotifications(userId: string) {
+  async getNotifications(
+    userId: string,
+    offset: number = 0,
+    limit: number = 10,
+  ) {
     return this.notificationRepository
       .createQueryBuilder()
       .where('NotificationEntity.userId = :userId', { userId })
       .orderBy('NotificationEntity.created_at', 'DESC')
+      .offset(offset)
+      .limit(limit)
       .getMany();
   }
 }
