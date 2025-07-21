@@ -26,27 +26,24 @@ const notificationSlice = createSlice({
   reducers: {
     setData(state, action: PayloadAction<NotificationI[]>) {
       state.data = action.payload
-      state.unreadCount = state.data.filter(item => !item.is_read).length ?? 0
       state.loadedCount = state.data.length
       state.offset = state.data.length
     },
     loadData(state, action: PayloadAction<NotificationI[]>) {
       const concatenated = state.data.concat(action.payload)
-      console.log(concatenated.length, action.payload)
-
       state.data = state.data.concat(action.payload)
       state.offset = concatenated.length
-      state.unreadCount = state.data.filter(item => !item.is_read).length ?? 0
       state.loadedCount = state.data.length
     },
-    setAsRead(state, action: PayloadAction<number>) {
-      state.data[action.payload] = {
-        ...state.data[action.payload],
+    setAsRead(state, action: PayloadAction<string>) {
+      const idx = state.data.findIndex(item => item.id === action.payload)
+      state.data[idx] = {
+        ...state.data[idx],
         is_read: true,
       }
+      state.unreadCount -= 1
     },
     addData(state, action: PayloadAction<NotificationI>) {
-      console.log("addData", action.payload)
       state.offset = state.offset + 1
       state.data = [action.payload, ...state.data]
       state.unreadCount = state.unreadCount + 1
@@ -54,6 +51,9 @@ const notificationSlice = createSlice({
     },
     setIsFetching(state, action: PayloadAction<boolean>) {
       state.isFetching = action.payload
+    },
+    setUnreadCount(state, action: PayloadAction<number>) {
+      state.unreadCount = action.payload
     },
     updateCount(state, action: PayloadAction<number>) {
       state.count = action.payload
@@ -65,6 +65,7 @@ const notificationSlice = createSlice({
 export const {
   loadData,
   setAsRead,
+  setUnreadCount,
   updateCount,
   setIsFetching,
   addData,

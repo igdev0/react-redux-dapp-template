@@ -33,12 +33,17 @@ const notificationApi = createApi({
       }),
       invalidatesTags: ["Notification"],
     }),
+
+    getTotalUnread: builder.query<number, void>({
+      query: () => `notification/count-unread`,
+    }),
   }),
 })
 
 export const {
   useMarkAsReadMutation,
   useLazyGetNotificationsQuery,
+  useGetTotalUnreadQuery,
   util: { updateQueryData },
 } = notificationApi
 

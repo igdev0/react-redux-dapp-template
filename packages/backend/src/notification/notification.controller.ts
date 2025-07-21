@@ -14,6 +14,7 @@ import { AuthGuard } from '../auth/auth.guard';
 import { User } from '../user/entities/user.entity';
 
 const MAX_LIMIT = 20;
+
 // Defines a controller for handling notification-related endpoints
 @Controller('notification')
 export class NotificationController {
@@ -34,6 +35,12 @@ export class NotificationController {
     });
 
     return stream$; // Return the stream to the client
+  }
+
+  @Get('/count-unread')
+  @UseGuards(AuthGuard) // Protects the route with authentication
+  async getTotalUnread(@GetUser() user: User) {
+    return await this.notificationService.getTotalUnread(user.id);
   }
 
   // GET endpoint to retrieve all notifications for the authenticated user

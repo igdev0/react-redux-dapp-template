@@ -12,15 +12,19 @@ import { useMarkAsReadMutation } from "@features/notification/services/notificat
 import { clsx } from "clsx"
 import { useRef } from "react"
 import NotificationLoader from "@features/notification/components/notification-loader.tsx"
+import { useAppDispatch } from "@core/store"
+import { setAsRead } from "@features/notification/store/notification.ts"
 
 function NotificationList() {
   const notifications = useNotification()
+  const appDispatch = useAppDispatch()
   const [markAsReadMutation] = useMarkAsReadMutation()
 
   const notificationRef = useRef<HTMLDivElement>(null)
   const handleNotificationClick = (id: string) => {
     return () => {
       markAsReadMutation(id)
+      appDispatch(setAsRead(id))
     }
   }
 

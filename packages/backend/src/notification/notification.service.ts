@@ -101,4 +101,12 @@ export class NotificationService {
       count,
     };
   }
+
+  getTotalUnread(userId: string) {
+    return this.notificationRepository
+      .createQueryBuilder()
+      .where('NotificationEntity.userId = :userId', { userId })
+      .where('NotificationEntity.is_read = false')
+      .getCount();
+  }
 }

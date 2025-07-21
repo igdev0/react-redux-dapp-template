@@ -5,11 +5,15 @@ import {
 } from "@microsoft/fetch-event-source"
 import { useSelector } from "react-redux"
 import { RootState, useAppDispatch } from "@core/store"
-import { useLazyGetNotificationsQuery } from "@features/notification/services/notification-api.ts"
+import {
+  useGetTotalUnreadQuery,
+  useLazyGetNotificationsQuery,
+} from "@features/notification/services/notification-api.ts"
 import {
   addData,
   setData,
   setIsFetching,
+  setUnreadCount,
   updateCount,
 } from "@features/notification/store/notification.ts"
 
@@ -24,6 +28,7 @@ export default function useNotification() {
   const limit = useSelector((state: RootState) => state.notificationSlice.limit)
   const count = useSelector((state: RootState) => state.notificationSlice.count)
   const [trigger, notifications] = useLazyGetNotificationsQuery()
+  const totalUnread = useGetTotalUnreadQuery()
   const data = useSelector((state: RootState) => state.notificationSlice.data)
   const loaderRef = useRef<HTMLButtonElement>(null)
   const appDispatch = useAppDispatch()
@@ -72,6 +77,12 @@ export default function useNotification() {
       appDispatch(updateCount(notifications.data.count))
     }
   }, [notifications])
+
+  useEffect(() => {
+    if (totalUnread.data) {
+      appDispatch(setUnreadCount(totalUnread.data))
+    }
+  }, [totalUnread])
 
   return {
     data,
