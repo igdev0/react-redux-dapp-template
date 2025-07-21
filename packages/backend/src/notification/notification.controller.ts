@@ -13,6 +13,7 @@ import { GetUser } from '../user/user.decorator';
 import { AuthGuard } from '../auth/auth.guard';
 import { User } from '../user/entities/user.entity';
 
+const MAX_LIMIT = 20;
 // Defines a controller for handling notification-related endpoints
 @Controller('notification')
 export class NotificationController {
@@ -43,7 +44,7 @@ export class NotificationController {
     @Query('offset') offset?: number,
     @Query('limit') limit?: number,
   ) {
-    limit = Math.min(Math.max(limit ?? 10, 1), 15);
+    limit = Math.min(Math.max(limit ?? 50, 1), MAX_LIMIT);
     offset = Math.max(offset ?? 0, 0);
     return await this.notificationService.getNotifications(
       user.id,

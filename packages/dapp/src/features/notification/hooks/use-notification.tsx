@@ -1,25 +1,36 @@
-import { useEffect, useMemo } from "react"
+import { useEffect, useRef } from "react"
 import {
   EventSourceMessage,
   fetchEventSource,
 } from "@microsoft/fetch-event-source"
 import { useSelector } from "react-redux"
 import { RootState, useAppDispatch } from "@core/store"
+import { useLazyGetNotificationsQuery } from "@features/notification/services/notification-api.ts"
 import {
-  updateQueryData,
-  useGetNotificationsQuery,
-} from "@features/notification/services/notification-api.ts"
+  addData,
+  setData,
+  setIsFetching,
+  updateCount,
+} from "@features/notification/store/notification.ts"
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_API_URL
 export default function useNotification() {
-  const notifications = useGetNotificationsQuery()
+  const offset = useSelector(
+    (state: RootState) => state.notificationSlice.offset,
+  )
+  const unreadCount = useSelector(
+    (state: RootState) => state.notificationSlice.unreadCount,
+  )
+  const limit = useSelector((state: RootState) => state.notificationSlice.limit)
+  const count = useSelector((state: RootState) => state.notificationSlice.count)
+  const [trigger, notifications] = useLazyGetNotificationsQuery()
+  const data = useSelector((state: RootState) => state.notificationSlice.data)
+  const loaderRef = useRef<HTMLButtonElement>(null)
   const appDispatch = useAppDispatch()
   const accessToken = useSelector(
     (state: RootState) => state.authSlice.accessToken,
   )
-  const notificationsUnreadCount = useMemo(() => {
-    return notifications.data?.filter(item => !item.is_read).length ?? 0
-  }, [notifications])
+
   useEffect(() => {
     const ctrl = new AbortController()
     if (accessToken) {
@@ -30,11 +41,7 @@ export default function useNotification() {
         onmessage: (ev: EventSourceMessage) => {
           const data = ev.data.length > 0 ? JSON.parse(ev.data) : null
           if (data) {
-            appDispatch(
-              updateQueryData("getNotifications", undefined, draft => {
-                draft.unshift(data)
-              }),
-            )
+            appDispatch(addData(data))
           }
         },
         onerror(err) {
@@ -53,5 +60,25 @@ export default function useNotification() {
       ctrl.abort()
     }
   }, [accessToken])
-  return { ...notifications, notificationsUnreadCount }
+
+  useEffect(() => {
+    trigger({ offset, limit })
+  }, [])
+
+  useEffect(() => {
+    appDispatch(setIsFetching(notifications.isFetching))
+    if (notifications.data) {
+      appDispatch(setData(notifications.data.data))
+      appDispatch(updateCount(notifications.data.count))
+    }
+  }, [notifications])
+
+  return {
+    data,
+    count,
+    limit,
+    offset,
+    loaderRef,
+    unreadCount,
+  }
 }

@@ -1,17 +1,19 @@
-import { combineReducers, configureStore } from "@reduxjs/toolkit"
+import { configureStore } from "@reduxjs/toolkit"
 import appReducer from "../../app-slice.ts"
 import authSlice from "@core/store/auth-slice.ts"
 import authService from "@core/services/auth.ts"
 import { useDispatch } from "react-redux"
 import notificationApi from "@features/notification/services/notification-api.ts"
+import notificationSlice from "@features/notification/store/notification.ts"
 
 const store = configureStore({
-  reducer: combineReducers({
+  reducer: {
     appReducer,
     authSlice,
+    notificationSlice,
     [authService.reducerPath]: authService.reducer,
     [notificationApi.reducerPath]: notificationApi.reducer,
-  }),
+  },
 
   middleware: getDefaultMiddleware => {
     return getDefaultMiddleware({

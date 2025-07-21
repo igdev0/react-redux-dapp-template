@@ -10,12 +10,14 @@ import useNotification from "@features/notification/hooks/use-notification.tsx"
 import withAuthenticated from "@shared/hocs/with-authenticated.tsx"
 import { useMarkAsReadMutation } from "@features/notification/services/notification-api.ts"
 import { clsx } from "clsx"
+import { useRef } from "react"
+import NotificationLoader from "@features/notification/components/notification-loader.tsx"
 
 function NotificationList() {
-  const { notificationsUnreadCount, ...notifications } = useNotification()
-
+  const notifications = useNotification()
   const [markAsReadMutation] = useMarkAsReadMutation()
 
+  const notificationRef = useRef<HTMLDivElement>(null)
   const handleNotificationClick = (id: string) => {
     return () => {
       markAsReadMutation(id)
@@ -23,18 +25,18 @@ function NotificationList() {
   }
 
   return (
-    <div>
+    <div ref={notificationRef}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild={true}>
           <Button variant="secondary" className="relative">
             <BellIcon />
             <div className="w-4 h-4 bg-red-600 text-xs absolute -top-1 -right-1 rounded-full text-white">
-              {notificationsUnreadCount}
+              {notifications.unreadCount}
             </div>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="center">
-          {notifications.data?.map(notification => (
+        <DropdownMenuContent align="center" className="max-h-[500px] h-full">
+          {notifications.data.map(notification => (
             <DropdownMenuItem
               className={clsx(
                 !notification.is_read ? "dark:bg-gray-200/5 bg-gray-200" : "",
@@ -58,6 +60,7 @@ function NotificationList() {
               </div>
             </DropdownMenuItem>
           ))}
+          <NotificationLoader />
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

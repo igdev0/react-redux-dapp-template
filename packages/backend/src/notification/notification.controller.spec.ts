@@ -15,16 +15,23 @@ const user: User = {
   created_at: new Date(),
   updated_at: new Date(),
 };
-const notification: NotificationEntity = {
-  id: 'some-id',
-  metadata: {},
-  message: 'Some message',
-  updated_at: new Date(),
-  created_at: new Date(),
-  user: { id: 'some-id', notifications: [] },
-  title: 'Some title',
-  type: 'system',
-  is_read: false,
+const notificationRes = {
+  data: [
+    {
+      id: 'some-id',
+      metadata: {},
+      message: 'Some message',
+      updated_at: new Date(),
+      created_at: new Date(),
+      user: { id: 'some-id', notifications: [] },
+      title: 'Some title',
+      type: 'system',
+      is_read: false,
+    },
+  ] as NotificationEntity[],
+  offset: 0,
+  limit: 15,
+  count: 1,
 };
 
 const typeormModule = new ModuleMocker(global);
@@ -63,7 +70,7 @@ describe('NotificationController', () => {
   it('should be able to get notifications', async () => {
     const res = jest
       .spyOn(service, 'getNotifications')
-      .mockReturnValue(Promise.resolve([notification]));
+      .mockReturnValue(Promise.resolve(notificationRes));
     await controller.getNotifications(user);
     expect(res).toHaveBeenCalledWith(user.id, 0, 10); // defaults
   });
@@ -71,7 +78,7 @@ describe('NotificationController', () => {
   it('should not be able to get more than 15 results per query ', async () => {
     const res = jest
       .spyOn(service, 'getNotifications')
-      .mockReturnValue(Promise.resolve([notification]));
+      .mockReturnValue(Promise.resolve(notificationRes));
     await controller.getNotifications(user, 10, 1000);
     expect(res).toHaveBeenCalledWith(user.id, 10, 15);
   });

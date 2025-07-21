@@ -1,6 +1,9 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 import { RootState } from "@core/store"
-import { NotificationI } from "@features/notification/types"
+import {
+  GetNotificationsArgs,
+  NotificationResponse,
+} from "@features/notification/types"
 
 const notificationApi = createApi({
   reducerPath: "notificationApi",
@@ -15,11 +18,14 @@ const notificationApi = createApi({
     },
   }),
   tagTypes: ["Notification"],
+
   endpoints: builder => ({
-    getNotifications: builder.query<NotificationI[], void>({
-      query: () => "notification",
-      providesTags: ["Notification"],
-    }),
+    getNotifications: builder.query<NotificationResponse, GetNotificationsArgs>(
+      {
+        query: args => `notification?offset=${args.offset}&limit=${args.limit}`,
+        providesTags: ["Notification"],
+      },
+    ),
     markAsRead: builder.mutation<void, string>({
       query: id => ({
         url: `notification/${id}`,
@@ -32,7 +38,7 @@ const notificationApi = createApi({
 
 export const {
   useMarkAsReadMutation,
-  useGetNotificationsQuery,
+  useLazyGetNotificationsQuery,
   util: { updateQueryData },
 } = notificationApi
 

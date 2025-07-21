@@ -1,4 +1,6 @@
-export interface Props {
+import { ComponentPropsWithRef } from "react"
+
+export interface Props extends ComponentPropsWithRef<"div"> {
   size?: "sm" | "md" | "lg"
 }
 
@@ -20,6 +22,7 @@ export default function Spinner(props: Props = { size: "md" }) {
 
   return (
     <div
+      ref={props.ref}
       className={`w-${size} aspect-square rounded-full border-2 border-transparent border-t-primary border-l-primary animate-spin`}
     />
   )

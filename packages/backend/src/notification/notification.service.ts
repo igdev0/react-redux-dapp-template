@@ -82,12 +82,23 @@ export class NotificationService {
     offset: number = 0,
     limit: number = 10,
   ) {
-    return this.notificationRepository
+    const count = await this.notificationRepository
+      .createQueryBuilder()
+      .where('NotificationEntity.userId = :userId', { userId })
+      .getCount();
+    const data = await this.notificationRepository
       .createQueryBuilder()
       .where('NotificationEntity.userId = :userId', { userId })
       .orderBy('NotificationEntity.created_at', 'DESC')
       .offset(offset)
       .limit(limit)
       .getMany();
+
+    return {
+      data,
+      offset,
+      limit,
+      count,
+    };
   }
 }
