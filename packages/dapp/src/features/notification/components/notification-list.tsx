@@ -34,7 +34,7 @@ function NotificationList() {
         <DropdownMenuTrigger asChild={true}>
           <Button variant="secondary" className="relative">
             <BellIcon />
-            <div className="w-4 h-4 bg-red-600 text-xs absolute -top-1 -right-1 rounded-full text-white">
+            <div className="w-4 h-4 bg-red-600 text-xs absolute -top-1 -right-1 rounded-full text-white select-none">
               {notifications.unreadCount}
             </div>
           </Button>
