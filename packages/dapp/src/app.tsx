@@ -29,12 +29,11 @@ const WrappedApp = withConnectedNetworks(memo(App))
 export function Root() {
   const auth = useSelector((state: RootState) => state.authSlice)
   const refreshResult = useRefreshAuth()
-
   return (
     <RainbowKitAuthenticationProvider
       adapter={authentication}
       status={
-        refreshResult.isFetching || (refreshResult.data && !auth.accessToken)
+        refreshResult.isFetching
           ? "loading"
           : auth.accessToken
             ? "authenticated"
