@@ -26,7 +26,7 @@ function App() {
 
 const WrappedApp = withConnectedNetworks(memo(App))
 
-function Root() {
+export function Root() {
   const auth = useSelector((state: RootState) => state.authSlice)
   const refreshResult = useRefreshAuth()
 

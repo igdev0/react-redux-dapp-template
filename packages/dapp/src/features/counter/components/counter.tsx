@@ -1,15 +1,14 @@
-import { useChainId } from "wagmi"
+import { useAccount, useChainId } from "wagmi"
 import {
   useReadCounterCount,
   useWriteCounterDecrement,
   useWriteCounterIncrement,
 } from "@shared/hooks/generated.ts"
-import withConnected from "@shared/hocs/with-connected.tsx"
-import NotConnected from "@shared/components/not-connected"
 import { Button } from "@shared/ui/button.tsx"
 
 function Counter() {
   const chainId = useChainId()
+  const { isConnected } = useAccount()
   const count = useReadCounterCount()
   const increment = useWriteCounterIncrement()
   const decrement = useWriteCounterDecrement()
@@ -34,10 +33,16 @@ function Counter() {
         </span>
       </h1>
       <div className="flex gap-2">
-        <Button onClick={handleIncrement} disabled={increment.isPending}>
+        <Button
+          onClick={handleIncrement}
+          disabled={increment.isPending || !isConnected}
+        >
           Increment
         </Button>
-        <Button onClick={handleDecrement} disabled={decrement.isPending}>
+        <Button
+          onClick={handleDecrement}
+          disabled={decrement.isPending || !isConnected}
+        >
           Decrement
         </Button>
       </div>
@@ -45,4 +50,4 @@ function Counter() {
   )
 }
 
-export default withConnected(Counter, { fallback: <NotConnected /> })
+export default Counter
