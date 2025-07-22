@@ -9,7 +9,7 @@ import {
   RainbowKitAuthenticationProvider,
   RainbowKitProvider,
 } from "@rainbow-me/rainbowkit"
-import authentication from "@core/config/authentication.ts"
+import authentication from "@core/config/rainbowkit.ts"
 import { ThemeProvider } from "@shared/components/theme-provider"
 import useRefreshAuth from "@shared/hooks/use-refresh-auth.ts"
 
